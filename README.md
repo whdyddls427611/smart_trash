@@ -27,4 +27,6 @@ AI 기반 스마트 쓰레기 분류 시스템
 - colab.txt - 데이터셋 학습용
 - login.html - 연동된 웹사이트
 - trash5.py - 실행할 프로그램
-- test.py - pc환경에서 학습된 데이터 테스트용
+- test.py - pc환경에서 학습된 데이터 테스트
+- classes.txt - 라벨 이름
+- model.tflite - 학습된 데이터 
