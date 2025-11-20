@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>로그인</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #f2f2f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      background-color: white;
+      padding: 30px 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      text-align: center;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    input {
+      margin-bottom: 15px;
+      padding: 16px;
+      font-size: 18px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      background-color: #007BFF;
+      color: white;
+      padding: 16px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .link-btn {
+      background-color: #6c757d;
+    }
+    .link-btn:hover {
+      background-color: #495057;
+    }
+    @media (max-width: 480px) {
+      .container { padding: 24px 16px; }
+      h1 { font-size: 24px; }
+      input, button {
+        font-size: 17px;
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>로그인</h1>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="이메일" required />
+      <input type="password" id="password" placeholder="비밀번호" required />
+      <button type="submit">로그인하기</button>
+      <button type="button" class="link-btn" onclick="location.href='register.html'">
+        계정이 없나요? 회원가입하기
+      </button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAVtB-5G932ZqNpn7a541p2iXZ_ZYGW-nU",
+      authDomain: "smart-5c491.firebaseapp.com",
+      databaseURL: "https://smart-5c491-default-rtdb.firebaseio.com",
+      projectId: "smart-5c491",
+      storageBucket: "smart-5c491.firebasestorage.app",
+      messagingSenderId: "1002873500741",
+      appId: "1:1002873500741:web:f3e9e142e00a6350d6df2c",
+      measurementId: "G-YMSX9299M2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    document.getElementById("loginForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then(async (userCredential) => {
+          const user = userCredential.user;
+
+          // ✅ Firestore에 UID 저장
+          await setDoc(doc(db, "current_uid", "latest"), {
+            uid: user.uid,
+            timestamp: new Date()
+          });
+
+          alert("로그인 성공 및 UID 저장 완료!");
+        })
+        .catch((error) => {
+          let message = "로그인에 실패했습니다. 다시 시도해주세요.";
+          if (error.code === 'auth/user-not-found') {
+            message = "등록되지 않은 이메일입니다.";
+          } else if (error.code === 'auth/wrong-password') {
+            message = "비밀번호가 올바르지 않습니다.";
+          } else if (error.code === 'auth/invalid-email') {
+            message = "이메일 형식이 잘못되었습니다.";
+          }
+          alert(message);
+        });
+    });
+  </script>
+</body>
+</html>

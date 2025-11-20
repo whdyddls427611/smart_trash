@@ -1,0 +1,28 @@
+# 1. 필수 패키지 설치
+!pip install -q ultralytics roboflow
+
+# 2. Roboflow API로 데이터셋 다운로드
+from roboflow import Roboflow
+
+rf = Roboflow(api_key="e6hHj4nZzB9f8SnX5Cox")
+project = rf.workspace("yongin").project("trash-vbwlc")  # 프로젝트 ID
+dataset = project.version(3).download("yolov8")  # 학습할 버전 번호로 수정
+
+# 3. YOLOv8 학습
+from ultralytics import YOLO
+
+model = YOLO("yolov8n.pt")
+model.train(
+    data=dataset.location + "/data.yaml",
+    epochs=3,
+    imgsz=416,
+    batch=8
+)
+
+# 4. 모델 내보내기 (.tflite)
+model.export(format="tflite")
+
+# 5. 자동 다운로드
+from google.colab import files
+files.download("runs/detect/train/weights/best.pt")
+files.download("runs/detect/train/weights/best_saved_model/best_float32.tflite")
